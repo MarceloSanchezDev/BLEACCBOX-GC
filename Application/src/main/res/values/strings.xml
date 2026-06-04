@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2013 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<resources>
+    <string name="ble_not_supported">BLE is not supported</string>
+    <string name="label_data">Data:</string>
+    <string name="label_device_address">Device address:</string>
+    <string name="label_state">State:</string>
+    <string name="no_data">No data</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="title_devices">ACCBox</string>
+    <string name="error_bluetooth_not_supported">Bluetooth not supported.</string>
+
+    <string name="unknown_device">Unknown device</string>
+    <string name="unknown_characteristic">Unknown characteristic</string>
+    <string name="unknown_service">Unknown service</string>
+    <!-- Button -->
+    <string name="Button7">Button7</string>
+    <string name="Logoaccbox">logoaccbox</string>
+    <string name="Button16">Button16</string>
+    <string name="Race">Race</string>
+    <string name="Button">Button</string>
+    <string name="Sport">Sport</string>
+    <string name="Button21">Button21</string>
+    <string name="City">City</string>
+    <string name="Button2">Button2</string>
+    <string name="Normal">Normal</string>
+    <string name="Eco">Eco</string>
+    <string name="ButtonE">ButtonE</string>
+    <string name="Button29">Button29</string>
+    <string name="ButtonIzq">ButtonIzq</string>
+    <string name="ImageViewM5">imageViewM5</string>
+    <string name="ImageViewM4">imageViewM4</string>
+    <string name="ImageViewM3">imageViewM3</string>
+    <string name="ImageViewM2">imageViewM2</string>
+    <string name="ImageViewM1">imageViewM1</string>
+    <string name="ImageViewP5">imageViewP5</string>
+    <string name="ImageViewP4">imageViewP4</string>
+    <string name="ImageViewP3">imageViewP3</string>
+    <string name="ImageViewP2">imageViewP2</string>
+    <string name="ImageViewP1">imageViewP1</string>
+    <string name="ButtonDer">ButtonDer</string>
+    <string name="Button6">Button6</string>
+    <string name="ButtonMenos">-</string>
+    <string name="ButtonPlus">+</string>
+    <string name="Button5">Button5</string>
+    <string name="Button100">Button100</string>
+    <string name="Parking">Parking</string>
+    <string name="Button31">Button31</string>
+    <string name="Button33">Button133</string>
+
+
+
+
+    <!-- Menu items -->
+    <string name="menu_connect">Connect</string>
+    <string name="menu_disconnect">Disconnect</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
+    <string name="demotest">DemoTest</string>
+</resources>
