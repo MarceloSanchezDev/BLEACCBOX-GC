@@ -1,25 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scanRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/fondocarbono"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:paddingStart="@dimen/screen_padding_horizontal"
+    android:paddingTop="@dimen/screen_padding_top"
+    android:paddingEnd="@dimen/screen_padding_horizontal"
+    android:paddingBottom="@dimen/screen_padding_bottom">
 
+    <!-- Logo principal ACCBox -->
     <ImageView
-        android:id="@+id/logoImage"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
+        android:id="@+id/scanLogo"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/app_name"
         android:scaleType="fitCenter"
-        android:src="@drawable/logo_accbox" />
+        android:src="@drawable/logo_accbox"
+        app:layout_constraintBottom_toTopOf="@id/scanBrandText"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="@dimen/scan_logo_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintWidth_percent="0.48" />
 
+    <!-- Texto / imagen secundaria -->
     <ImageView
-        android:id="@+id/textoImage"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
+        android:id="@+id/scanBrandText"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/screen_gap"
         android:adjustViewBounds="true"
+        android:contentDescription="@string/app_name"
         android:scaleType="fitCenter"
-        android:src="@drawable/logoandroid" />
+        android:src="@drawable/logoandroid"
+        app:layout_constraintBottom_toTopOf="@id/scanStatusText"
+        app:layout_constraintDimensionRatio="3:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="@dimen/scan_text_logo_height"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scanLogo"
+        app:layout_constraintWidth_percent="0.62" />
 
-</LinearLayout>
+    <!-- Estado de búsqueda -->
+    <TextView
+        android:id="@+id/scanStatusText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/screen_gap"
+        android:gravity="center"
+        android:text="Buscando dispositivo..."
+        android:textColor="#BDBDBD"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scanBrandText" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,190 +1,201 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/controlScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/fondocarbono"
     android:fillViewport="true"
-    android:clipToPadding="false"
     android:overScrollMode="ifContentScrolls">
 
-    <LinearLayout
-        android:id="@+id/rootLayout"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/controlRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
         android:paddingStart="@dimen/screen_padding_horizontal"
-        android:paddingTop="@dimen/screen_padding_vertical"
+        android:paddingTop="@dimen/screen_padding_top"
         android:paddingEnd="@dimen/screen_padding_horizontal"
-        android:paddingBottom="@dimen/screen_padding_vertical"
-        tools:visibility="visible">
+        android:paddingBottom="@dimen/screen_padding_bottom">
 
-        <LinearLayout
-            android:id="@+id/topBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/top_bar_margin_top"
-            android:layout_marginBottom="@dimen/top_bar_margin_bottom"
-            android:paddingStart="@dimen/top_bar_padding_horizontal"
-            android:paddingEnd="@dimen/top_bar_padding_horizontal"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btnDemoTop"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/top_button_height"
-                android:layout_marginEnd="@dimen/top_bar_inner_spacing"
-                android:layout_weight="1"
-                android:background="@drawable/button_demo"
-                android:text=""
-                android:textAllCaps="false"
-                android:textColor="#D4A61E"
-                android:textSize="@dimen/top_button_text_size"
-                android:textStyle="bold" />
-
-            <ImageButton
-                android:id="@+id/btnCenterTop"
-                android:layout_width="@dimen/top_icon_width"
-                android:layout_height="@dimen/top_icon_height"
-                android:layout_marginEnd="@dimen/top_bar_inner_spacing"
-                android:background="@drawable/logosinfondo"
-                android:contentDescription="Centro"
-                android:padding="@dimen/top_icon_padding"
-                android:scaleType="fitCenter" />
-
-            <Button
-                android:id="@+id/btnBluetoothTop"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/top_button_height"
-                android:layout_weight="1"
-                android:background="@drawable/button_bluetooth"
-                android:text=""
-                android:textAllCaps="false"
-                android:textColor="#D4A61E"
-                android:textSize="@dimen/top_button_text_size"
-                android:textStyle="bold" />
-        </LinearLayout>
+        <!-- HEADER: DEMO | LOGO | BLE -->
+        <Button
+            android:id="@+id/btnDemoTop"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/header_button_height"
+            android:background="@drawable/button_demo"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintEnd_toStartOf="@id/headerCenterLogo"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.32" />
 
         <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:id="@+id/headerCenterLogo"
+            android:layout_width="@dimen/header_logo_size"
+            android:layout_height="@dimen/header_logo_size"
+            android:layout_marginStart="@dimen/header_gap"
+            android:layout_marginEnd="@dimen/header_gap"
             android:adjustViewBounds="true"
-            android:contentDescription="@string/Logoaccbox"
-            android:maxHeight="@dimen/logo_max_height"
-            android:onClick="onClickEstado"
+            android:contentDescription="@string/app_name"
             android:scaleType="fitCenter"
-            android:src="@drawable/logoandroid" />
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/logo_bottom_spacing" />
+            android:src="@drawable/logo_accbox"
+            app:layout_constraintBottom_toBottomOf="@id/btnDemoTop"
+            app:layout_constraintEnd_toStartOf="@id/btnBluetoothTop"
+            app:layout_constraintStart_toEndOf="@id/btnDemoTop"
+            app:layout_constraintTop_toTopOf="@id/btnDemoTop" />
 
         <Button
-            android:id="@+id/buttonE"
-            android:layout_width="1dp"
-            android:layout_height="1dp"
-            android:onClick="onClickEstado"
-            android:text="@string/ButtonE"
-            android:visibility="invisible" />
+            android:id="@+id/btnBluetoothTop"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/header_button_height"
+            android:background="@drawable/button_bluetooth"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintBottom_toBottomOf="@id/btnDemoTop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/headerCenterLogo"
+            app:layout_constraintTop_toTopOf="@id/btnDemoTop"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.32" />
+
+        <!-- TEXTOS OCULTOS: compatibilidad con DeviceControlActivity -->
+        <TextView
+            android:id="@+id/data_name"
+            android:layout_width="@dimen/hidden_size"
+            android:layout_height="@dimen/hidden_size"
+            android:alpha="0"
+            android:text=""
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnDemoTop" />
 
         <TextView
             android:id="@+id/data_value"
-            android:layout_width="1dp"
-            android:layout_height="1dp"
+            android:layout_width="@dimen/hidden_size"
+            android:layout_height="@dimen/hidden_size"
+            android:alpha="0"
             android:text=""
-            android:textSize="12sp"
-            android:visibility="invisible" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/data_name" />
 
-        <TextView
-            android:id="@+id/data_name"
-            android:layout_width="1dp"
-            android:layout_height="1dp"
-            android:text=""
-            android:textSize="12sp"
-            android:visibility="invisible" />
+        <!-- BOTONES PRINCIPALES -->
 
-        <LinearLayout
-            android:id="@+id/mainButtonsContainer"
-            android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/scanBrandText"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/main_buttons_container_margin_top"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/brand_image_top_margin"
+            android:layout_marginBottom="@dimen/brand_image_bottom_margin"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/app_name"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logoandroid"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/headerCenterLogo"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.56" />
 
-            <Button
-                android:id="@+id/buttonR"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="@dimen/main_button_width"
-                android:layout_height="@dimen/main_button_height"
-                android:layout_marginStart="@dimen/main_button_margin_start"
-                android:layout_marginEnd="@dimen/main_button_margin_end"
-                android:layout_marginBottom="@dimen/main_button_margin_bottom"
-                android:background="@drawable/button_race"
-                android:minHeight="@dimen/main_button_min_height"
-                android:onClick="onClickRace" />
+        <Button
+            android:id="@+id/buttonC"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/mode_button_height"
+            android:layout_marginTop="@dimen/mode_buttons_top_margin"
+            android:background="@drawable/button_block_city"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scanBrandText"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.68" />
 
-            <Button
-                android:id="@+id/buttonS"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="@dimen/main_button_width"
-                android:layout_height="@dimen/main_button_height"
-                android:layout_marginStart="@dimen/main_button_margin_start"
-                android:layout_marginEnd="@dimen/main_button_margin_end"
-                android:layout_marginBottom="@dimen/main_button_margin_bottom"
-                android:background="@drawable/button_sport"
-                android:minHeight="@dimen/main_button_min_height"
-                android:onClick="onClickSport" />
+        <Button
+            android:id="@+id/buttonS"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/mode_button_height"
+            android:layout_marginTop="@dimen/mode_button_gap"
+            android:background="@drawable/button_block_sport"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintStart_toStartOf="@id/buttonC"
+            app:layout_constraintTop_toBottomOf="@id/buttonC"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.68" />
 
-            <Button
-                android:id="@+id/buttonC"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="@dimen/main_button_width"
-                android:layout_height="@dimen/main_button_height"
-                android:layout_marginStart="@dimen/main_button_margin_start"
-                android:layout_marginEnd="@dimen/main_button_margin_end"
-                android:layout_marginBottom="@dimen/main_button_margin_bottom"
-                android:background="@drawable/button_city"
-                android:minHeight="@dimen/main_button_min_height"
-                android:onClick="onClickCity" />
+        <Button
+            android:id="@+id/buttonEco"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/mode_button_height"
+            android:layout_marginTop="@dimen/mode_button_gap"
+            android:background="@drawable/button_block_eco"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintStart_toStartOf="@id/buttonC"
+            app:layout_constraintTop_toBottomOf="@id/buttonS"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.68" />
 
-            <Button
-                android:id="@+id/buttonN"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="@dimen/main_button_width"
-                android:layout_height="@dimen/main_button_height"
-                android:layout_marginStart="@dimen/main_button_margin_start"
-                android:layout_marginEnd="@dimen/main_button_margin_end"
-                android:layout_marginBottom="@dimen/main_button_margin_bottom"
-                android:background="@drawable/button_normal"
-                android:minHeight="@dimen/main_button_min_height"
-                android:onClick="onClickNormal" />
+        <Button
+            android:id="@+id/buttonN"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/mode_button_height"
+            android:layout_marginTop="@dimen/mode_button_gap"
+            android:background="@drawable/button_block_normal"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintStart_toStartOf="@id/buttonC"
+            app:layout_constraintTop_toBottomOf="@id/buttonEco"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.68" />
 
-            <Button
-                android:id="@+id/buttonEco"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="@dimen/main_button_width"
-                android:layout_height="@dimen/main_button_height"
-                android:layout_marginStart="@dimen/main_button_margin_start"
-                android:layout_marginEnd="@dimen/main_button_margin_end"
-                android:layout_marginBottom="@dimen/main_button_margin_bottom"
-                android:background="@drawable/button_eco"
-                android:minHeight="@dimen/main_button_min_height"
-                android:onClick="onClickEco" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/buttonR"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/mode_button_height"
+            android:layout_marginTop="@dimen/mode_button_gap"
+            android:background="@drawable/button_block_race"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintStart_toStartOf="@id/buttonC"
+            app:layout_constraintTop_toBottomOf="@id/buttonN"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.68" />
 
+        <!-- BARRAS / INDICADORES DE AJUSTE FINO -->
+
+        <!-- CONTROL - / + -->
         <LinearLayout
             android:id="@+id/starsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="16dp"
             android:layout_marginStart="@dimen/stars_container_margin_horizontal"
             android:layout_marginEnd="@dimen/stars_container_margin_horizontal"
+            android:layout_marginTop="@dimen/stars_container_top_margin"
             android:gravity="center"
             android:minHeight="@dimen/stars_container_min_height"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.41"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/buttonR">
 
             <Space
                 android:layout_width="0dp"
@@ -195,153 +206,160 @@
                 android:id="@+id/imageViewM5"
                 android:layout_width="@dimen/star_w_5"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="ImageViewM5"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#27F802" />
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/star_green_5"
+                android:contentDescription="Minus level 5" />
 
             <ImageView
                 android:id="@+id/imageViewM4"
                 android:layout_width="@dimen/star_w_4"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="@string/ImageViewM4"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#5FF644" />
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/star_green_4"
+                android:contentDescription="Minus level 4" />
 
             <ImageView
                 android:id="@+id/imageViewM3"
                 android:layout_width="@dimen/star_w_3"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="@string/ImageViewM3"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#85F371" />
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/star_green_3"
+                android:contentDescription="Minus level 3" />
 
             <ImageView
                 android:id="@+id/imageViewM2"
                 android:layout_width="@dimen/star_w_2"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="@string/ImageViewM2"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#AAF69D" />
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/star_green_2"
+                android:contentDescription="Minus level 2" />
 
             <ImageView
                 android:id="@+id/imageViewM1"
                 android:layout_width="@dimen/star_w_1"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="@string/ImageViewM1"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#C5F8BC" />
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/star_green_1"
+                android:contentDescription="Minus level 1" />
 
             <ImageView
                 android:id="@+id/imageViewP1"
                 android:layout_width="@dimen/star_w_1"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="@string/ImageViewP1"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#FAB6B6" />
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/star_red_1"
+                android:contentDescription="Plus level 1" />
 
             <ImageView
                 android:id="@+id/imageViewP2"
                 android:layout_width="@dimen/star_w_2"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="@string/ImageViewP2"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#FF8484" />
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/star_red_2"
+                android:contentDescription="Plus level 2" />
 
             <ImageView
                 android:id="@+id/imageViewP3"
                 android:layout_width="@dimen/star_w_3"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="@string/ImageViewP3"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#FD5E5E" />
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/star_red_3"
+                android:contentDescription="Plus level 3" />
 
             <ImageView
                 android:id="@+id/imageViewP4"
                 android:layout_width="@dimen/star_w_4"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="@string/ImageViewP4"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#FF2828" />
+                android:layout_marginEnd="2dp"
+                android:background="@drawable/star_red_4"
+                android:contentDescription="Plus level 4" />
 
             <ImageView
                 android:id="@+id/imageViewP5"
                 android:layout_width="@dimen/star_w_5"
                 android:layout_height="@dimen/star_h"
-                android:contentDescription="@string/ImageViewP5"
-                android:src="@android:drawable/editbox_dropdown_light_frame"
-                android:tint="#FF0000" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/plusMinusContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/plus_minus_container_margin_start"
-            android:layout_marginTop="@dimen/plus_minus_container_margin_top"
-            android:layout_marginEnd="@dimen/plus_minus_container_margin_end"
-            android:layout_marginBottom="@dimen/plus_minus_container_margin_bottom"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/buttonMenos"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="@dimen/plus_minus_button_width"
-                android:layout_height="@dimen/plus_minus_button_height"
-                android:background="@drawable/button_less"
-                android:onClick="onClickMenos"
-                android:textColor="@android:color/black" />
-
-            <Button
-                android:id="@+id/buttonPlus"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="@dimen/plus_minus_button_width"
-                android:layout_height="@dimen/plus_minus_button_height"
-                android:background="@drawable/button_more"
-                android:onClick="onClickPlus"
-                android:textColor="@android:color/black" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/bottomButtonsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/bottom_container_margin_horizontal"
-            android:layout_marginTop="@dimen/bottom_container_margin_top"
-            android:layout_marginEnd="@dimen/bottom_container_margin_horizontal"
-            android:layout_marginBottom="@dimen/bottom_container_margin_bottom"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/buttonP"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="@dimen/bottom_button_size"
-                android:layout_height="@dimen/bottom_button_size"
-                android:background="@drawable/button_parking"
-                android:onClick="onClickPark"
-                android:textColor="@android:color/transparent" />
+                android:background="@drawable/star_red_5"
+                android:contentDescription="Plus level 5" />
 
             <Space
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1" />
 
-            <Button
-                android:id="@+id/buttonB"
-                style="@style/Widget.AppCompat.Button"
-                android:layout_width="@dimen/bottom_button_size"
-                android:layout_height="@dimen/bottom_button_size"
-                android:background="@drawable/button_block"
-                android:onClick="onClickBlock"
-                android:text="B"
-                android:textColor="@android:color/transparent" />
         </LinearLayout>
 
-    </LinearLayout>
+        <Button
+            android:id="@+id/buttonMenos"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/stepper_button_height"
+            android:layout_marginTop="@dimen/stepper_buttons_top_margin"
+            android:background="@drawable/block_button_less"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintEnd_toStartOf="@id/buttonPlus"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/starsContainer"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.41" />
+
+        <Button
+            android:id="@+id/buttonPlus"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/stepper_button_height"
+            android:background="@drawable/block_button_more"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/buttonMenos"
+            app:layout_constraintTop_toTopOf="@id/buttonMenos"
+            app:layout_constraintWidth_default="percent"
+            app:layout_constraintWidth_percent="0.41" />
+
+        <!-- FOOTER: PARKING | BLOCK -->
+        <Button
+            android:id="@+id/buttonP"
+            android:layout_width="@dimen/footer_icon_button_size"
+            android:layout_height="@dimen/footer_icon_button_size"
+            android:layout_marginStart="@dimen/footer_side_margin"
+            android:layout_marginTop="@dimen/footer_top_margin"
+            android:background="@drawable/button_parking"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/buttonMenos" />
+
+        <Button
+            android:id="@+id/buttonB"
+            android:layout_width="@dimen/footer_icon_button_size"
+            android:layout_height="@dimen/footer_icon_button_size"
+            android:layout_marginEnd="@dimen/footer_side_margin"
+            android:background="@drawable/button_block"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:padding="0dp"
+            android:text=""
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/buttonP" />
+
+        <!-- BOTÓN OCULTO: compatibilidad con DeviceControlActivity -->
+        <Button
+            android:id="@+id/buttonE"
+            android:layout_width="@dimen/hidden_size"
+            android:layout_height="@dimen/hidden_size"
+            android:alpha="0"
+            android:enabled="false"
+            android:text=""
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/buttonP" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>

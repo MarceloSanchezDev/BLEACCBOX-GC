@@ -78,6 +78,10 @@ public class DeviceControlActivity extends Activity {
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     private boolean mConnected = false;
+    private boolean isNavigatingToScanner = false;
+    private final Handler disconnectHandler = new Handler();
+    private boolean isServiceBound = false;
+    private boolean isReceiverRegistered = false;
     private boolean TODO = true;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
 
@@ -123,9 +127,23 @@ public class DeviceControlActivity extends Activity {
                 return;
             }
 
-            Log.d(TAG, "***** mDeviceAddress = " + mDeviceAddress);
-            Log.d(TAG, "***** voy a conectar desde onServiceConnected");
+            if (dt != null) {
+                Log.d(TAG, "Modo demo activo: no se intenta conexión BLE");
+                return;
+            }
 
+//            if (mDeviceAddress == null || mDeviceAddress.isEmpty()) {
+//                Log.w(TAG, "mDeviceAddress vacío. Se vuelve al scanner.");
+//                abrirScanner();
+//                return;
+//            }
+
+            if (!hasBluetoothConnectPermission()) {
+                Log.w(TAG, "Falta permiso BLUETOOTH_CONNECT");
+                return;
+            }
+
+            Log.d(TAG, "***** mDeviceAddress = " + mDeviceAddress);
             boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "***** connect desde onServiceConnected = " + result);
         }
@@ -156,7 +174,7 @@ public class DeviceControlActivity extends Activity {
                 updateConnectionState(R.string.connected);
                 invalidateOptionsMenu();
                 Button btnBluetoothTop = findViewById(R.id.btnBluetoothTop);
-               // btnBluetoothTop.setText("DISCONNECT");
+                // btnBluetoothTop.setText("DISCONNECT");
                 btnBluetoothTop.setBackgroundResource(R.drawable.true_bluetooth);
                 readACCBOX();
                 botonesEnable();
@@ -164,22 +182,36 @@ public class DeviceControlActivity extends Activity {
                 Log.d(TAG, "***** ACTION_GATT_CONNECTED recibido");
                 Log.d(TAG, "***** mConnected ahora = true");
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                Log.d(TAG, "***** ACTION_GATT_DISCONNECTED recibido");
+
                 mConnected = false;
                 updateConnectionState(R.string.disconnected);
+
                 Button btnBluetoothTop = findViewById(R.id.btnBluetoothTop);
-                //btnBluetoothTop.setText("CONNECT");
-                btnBluetoothTop.setBackgroundResource(R.drawable.button_bluetooth);
-                Toast.makeText(DeviceControlActivity.this, "Desconectado", Toast.LENGTH_SHORT).show();
-                invalidateOptionsMenu();
+                if (btnBluetoothTop != null) {
+                    btnBluetoothTop.setBackgroundResource(R.drawable.button_bluetooth);
+                }
+
+                Button btnDemoTop = findViewById(R.id.btnDemoTop);
+                if (btnDemoTop != null) {
+                    btnDemoTop.setEnabled(true);
+                    btnDemoTop.setAlpha(1f);
+                }
+
                 clearUI();
                 coloresNeutros();
                 botonesNoEnable();
-                Button btnDemoTop = findViewById(R.id.btnDemoTop);
-                btnDemoTop.setEnabled(true);
-                btnDemoTop.setAlpha(1f);
-                Log.d(TAG, "***** ACTION_GATT_DISCONNECTED recibido");
+
                 Log.d(TAG, "***** mConnected ahora = false");
-                clearUI();
+
+                // Si estamos en modo demo, NO volvemos a buscar BLE.
+                if (dt != null) {
+                    Toast.makeText(DeviceControlActivity.this, "Modo demo activo", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Si era una conexión real, volvemos automáticamente al scanner.
+                handleBleDisconnectedAndSearchAgain();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
                 //displayGattServices(mBluetoothLeService.getSupportedGattServices());
@@ -264,27 +296,79 @@ public class DeviceControlActivity extends Activity {
                     return false;
                 }
             };
+    private void handleBleDisconnectedAndSearchAgain() {
+        if (isNavigatingToScanner) {
+            return;
+        }
 
-    private void clearUI() {
-        //mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);
-        mDataField.setText(R.string.no_data);
+        isNavigatingToScanner = true;
+
+        Log.d(TAG, "BLE desconectado. Cerrando conexión y volviendo a búsqueda.");
+
+        mConnected = false;
+
+        try {
+            if (mBluetoothLeService != null) {
+                mBluetoothLeService.disconnect();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Error intentando desconectar BLE", e);
+        }
+
+        coloresNeutros();
+        botonesNoEnable();
+
+        Toast.makeText(
+                DeviceControlActivity.this,
+                "Dispositivo desconectado. Buscando otro dispositivo...",
+                Toast.LENGTH_SHORT
+        ).show();
+
+        disconnectHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(DeviceControlActivity.this, DeviceScanActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
+            }
+        }, 800);
     }
+    private void clearUI() {
+        if (mDataField != null) {
+            mDataField.setText(R.string.no_data);
+        }
+    }
+    private void logActiveScreenConfig() {
+        int widthDp = getResources().getConfiguration().screenWidthDp;
+        int heightDp = getResources().getConfiguration().screenHeightDp;
+        int smallestWidthDp = getResources().getConfiguration().smallestScreenWidthDp;
 
+        float density = getResources().getDisplayMetrics().density;
+        int widthPx = getResources().getDisplayMetrics().widthPixels;
+        int heightPx = getResources().getDisplayMetrics().heightPixels;
+
+        Log.d(TAG, "===== SCREEN SIZE DEBUG =====");
+        Log.d(TAG, "widthDp: " + widthDp);
+        Log.d(TAG, "heightDp: " + heightDp);
+        Log.d(TAG, "smallestWidthDp: " + smallestWidthDp);
+        Log.d(TAG, "widthPx: " + widthPx);
+        Log.d(TAG, "heightPx: " + heightPx);
+        Log.d(TAG, "density: " + density);
+        Log.d(TAG, "=============================");
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.button_control);
+        logActiveScreenConfig();
         Button btnDemoTop = findViewById(R.id.btnDemoTop);
 
         btnDemoTop.setOnClickListener(v -> {
-            btnDemoTop.setEnabled(false);
-            btnDemoTop.setAlpha(0.5f);
-
             Intent intent = new Intent(DeviceControlActivity.this, DeviceControlActivity.class);
             intent.putExtra("variable_DemoTest", "demo");
-
             startActivity(intent);
             finish();
         });
@@ -315,39 +399,34 @@ public class DeviceControlActivity extends Activity {
 
         btnBluetoothTop.setOnClickListener(v -> {
             if (dt != null) {
-                Toast.makeText(DeviceControlActivity.this, "Conectando...", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(DeviceControlActivity.this, DeviceScanActivity.class);
-                startActivity(intent);
-                finish();
+                Toast.makeText(DeviceControlActivity.this, "Buscando dispositivo BLE...", Toast.LENGTH_SHORT).show();
+                abrirScanner();
                 return;
             }
 
-            if (mBluetoothLeService == null) {
-                return;
-            }
-
-            if (ActivityCompat.checkSelfPermission(
-                    DeviceControlActivity.this,
-                    Manifest.permission.BLUETOOTH_CONNECT
-            ) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-
-            if (mConnected) {
-                mBluetoothLeService.disconnect();
-            } else {
-                Toast.makeText(DeviceControlActivity.this, "Conectando...", Toast.LENGTH_SHORT).show();
-
-                if (mDeviceAddress != null && !mDeviceAddress.isEmpty()) {
-                    mBluetoothLeService.connect(mDeviceAddress);
-                } else {
-                    Intent intent = new Intent(DeviceControlActivity.this, DeviceScanActivity.class);
-                    startActivity(intent);
-                    finish();
+            if (mConnected && mBluetoothLeService != null) {
+                if (!hasBluetoothConnectPermission()) {
+                    Toast.makeText(DeviceControlActivity.this, "Falta permiso Bluetooth", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                mBluetoothLeService.disconnect();
+                return;
+            }
+
+            if (mBluetoothLeService != null && mDeviceAddress != null && !mDeviceAddress.isEmpty()) {
+                if (!hasBluetoothConnectPermission()) {
+                    Toast.makeText(DeviceControlActivity.this, "Falta permiso Bluetooth", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Toast.makeText(DeviceControlActivity.this, "Conectando...", Toast.LENGTH_SHORT).show();
+                mBluetoothLeService.connect(mDeviceAddress);
+            } else {
+                abrirScanner();
             }
         });
+
         mbuttonN = (Button) findViewById(R.id.buttonN);
         mbuttonC = (Button) findViewById(R.id.buttonC);
         mbuttonS = (Button) findViewById(R.id.buttonS);
@@ -358,6 +437,8 @@ public class DeviceControlActivity extends Activity {
         mbuttonEco = (Button) findViewById(R.id.buttonEco);
         mbuttonPlus = (Button) findViewById(R.id.buttonPlus);
         mbuttonMenos = (Button) findViewById(R.id.buttonMenos);
+
+        configurarClicksBotones();
 
         IM5 = (ImageView) findViewById(R.id.imageViewM5);
         IM4 = (ImageView) findViewById(R.id.imageViewM4);
@@ -453,18 +534,28 @@ public class DeviceControlActivity extends Activity {
         }
 
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-        boolean bound = bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-        Log.d(TAG, "***** bindService result = " + bound);
+        isServiceBound = bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+        Log.d(TAG, "***** bindService result = " + isServiceBound);
 
         if (dt != null) {
-            botonesEnable();
             mConnected = true;
+            NBT = 1;
+            tipoBT = 1;
+            ESTADO = 0;
+            estado = 0;
+            STEP = 0;
+
+            botonesEnable();
             coloresNeutros();
-            mbuttonN.callOnClick();
-            mbuttonMenos.setEnabled(false);
-            mbuttonPlus.setEnabled(false);
+            mbuttonN.setBackgroundResource(R.drawable.button_normal);
+            mbuttonMenos.setEnabled(true);
+            mbuttonPlus.setEnabled(true);
             setNumStarsV(0);
             setNumStarsR(0);
+
+            btnDemoTop.setEnabled(false);
+            btnDemoTop.setAlpha(0.5f);
+
             Toast.makeText(DeviceControlActivity.this, "Modo demo", Toast.LENGTH_SHORT).show();
         }
 
@@ -473,75 +564,112 @@ public class DeviceControlActivity extends Activity {
     }
 
 
+    private boolean hasBluetoothConnectPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            return true;
+        }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+        return ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+        ) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private boolean puedeUsarControles() {
+        return mConnected || dt != null;
+    }
+
+    private boolean puedeEnviarBle() {
+        return mConnected && mBluetoothLeService != null && dt == null;
+    }
+
+    private void abrirScanner() {
+        Intent intent = new Intent(DeviceControlActivity.this, DeviceScanActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void configurarClicksBotones() {
+        mbuttonN.setOnClickListener(v -> onClickNormal(v));
+        mbuttonC.setOnClickListener(v -> onClickCity(v));
+        mbuttonS.setOnClickListener(v -> onClickSport(v));
+        mbuttonR.setOnClickListener(v -> onClickRace(v));
+        mbuttonEco.setOnClickListener(v -> onClickEco(v));
+
+        mbuttonMenos.setOnClickListener(v -> onClickMenos(v));
+        mbuttonPlus.setOnClickListener(v -> onClickPlus(v));
+
+        mbuttonP.setOnClickListener(v -> onClickPark(v));
+        mbuttonB.setOnClickListener(v -> onClickBlock(v));
+
+        mbuttonE.setOnClickListener(v -> onClickEstado(v));
+    }
+
+
     @Override
-    // @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     protected void onResume() {
         Log.d(TAG, String.format("***** estado onResume INGRESO %d", estado));
-        //coloresNeutros();
-        //botonesNoEnable();
         super.onResume();
-        Log.d(TAG, String.format("***** estado onResume INGRESO 1 %d", estado));
 
-        // ??? registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter(), Context.RECEIVER_EXPORTED);
-
-        Log.d(TAG, String.format("***** estado onResume INGRESO 2 %d", estado));
-
-        if (mBluetoothLeService != null) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
+        if (!isReceiverRegistered) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter(), Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
             }
+            isReceiverRegistered = true;
+        }
+
+        if (dt != null) {
+            botonesEnable();
+            restaurarUIDesdeEstado();
+            Log.d(TAG, String.format("***** estado onResume SALIDA DEMO %d", estado));
+            return;
+        }
+
+        if (mBluetoothLeService != null
+                && mDeviceAddress != null
+                && !mDeviceAddress.isEmpty()
+                && hasBluetoothConnectPermission()) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
-            botonesEnable();
-            if (ESTADO > 600 && ESTADO < 2000) {
-                    //mbuttonP.setBackgroundColor(Color.parseColor("#ffc000"));
-                    mbuttonP.setBackgroundResource(R.drawable.true_parking);
-                    mbuttonMenos.setBackgroundResource(R.drawable.block_button_less);
-                    mbuttonPlus.setBackgroundResource(R.drawable.block_button_more);
-
-            } else if (ESTADO >= 2000) {
-                mbuttonB.setBackgroundResource(R.drawable.true_blocking);
-                mbuttonMenos.setBackgroundResource(R.drawable.block_button_less);
-                mbuttonPlus.setBackgroundResource(R.drawable.block_button_more);
-            } else {
-                //mbuttonE.callOnClick();
-            }
         }
 
         Log.d(TAG, String.format("***** estado onResume SALIDA %d", estado));
-
     }
+
 
     @Override
     protected void onPause() {
         Log.d(TAG, String.format("***** estado onPause INGRESO %d", estado));
         super.onPause();
-        unregisterReceiver(mGattUpdateReceiver);
-        //mConnected = false;
-        //mBluetoothLeService.disconnect(); // desconectar cuando entra en pausa
-        //coloresNeutros();
-        //botonesNoEnable();
+
+        if (isReceiverRegistered) {
+            try {
+                unregisterReceiver(mGattUpdateReceiver);
+            } catch (IllegalArgumentException e) {
+                Log.w(TAG, "Receiver ya estaba desregistrado", e);
+            }
+            isReceiverRegistered = false;
+        }
 
         Log.d(TAG, String.format("***** estado onPause SALIDA %d", estado));
-
-
     }
 
     @Override
     protected void onDestroy() {
         Log.d(TAG, String.format("***** estado onDestroy INGRESO %d", estado));
         super.onDestroy();
-        unbindService(mServiceConnection);
+
+        if (isServiceBound) {
+            try {
+                unbindService(mServiceConnection);
+            } catch (IllegalArgumentException e) {
+                Log.w(TAG, "Service ya estaba desregistrado", e);
+            }
+            isServiceBound = false;
+        }
+
         mBluetoothLeService = null;
 
         Log.d(TAG, String.format("***** estado onDestroy SALIDA %d", estado));
@@ -552,7 +680,7 @@ public class DeviceControlActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, String.format("***** estado onCreateOptionMenu INGRESO %d", estado));
         getMenuInflater().inflate(R.menu.gatt_services, menu);
-        if (mConnected) {
+        if (mConnected || dt != null) {
             menu.findItem(R.id.menu_connect).setVisible(false);
             menu.findItem(R.id.menu_disconnect).setVisible(true);
             botonesEnable();
@@ -569,85 +697,54 @@ public class DeviceControlActivity extends Activity {
 
     }
 
-/*
-    @Override
-    //@RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d(TAG, String.format("***** estado onOptionsItemSelected INGRESO %d", estado));
-        switch (item.getItemId()) {
-            case R.id.menu_connect:
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return TODO;
-                }
-                mBluetoothLeService.connect(mDeviceAddress);
-                return true;
-            case R.id.menu_disconnect:
-                mBluetoothLeService.disconnect();
-                return true;
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-        Log.d(TAG, String.format("***** estado onOptionsItemSelected SALIDA %d", estado));
-        return super.onOptionsItemSelected(item);
+    /*
+        @Override
+        //@RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
+        public boolean onOptionsItemSelected(MenuItem item) {
+            Log.d(TAG, String.format("***** estado onOptionsItemSelected INGRESO %d", estado));
+            switch (item.getItemId()) {
+                case R.id.menu_connect:
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return TODO;
+                    }
+                    mBluetoothLeService.connect(mDeviceAddress);
+                    return true;
+                case R.id.menu_disconnect:
+                    mBluetoothLeService.disconnect();
+                    return true;
+                case android.R.id.home:
+                    onBackPressed();
+                    return true;
+            }
+            Log.d(TAG, String.format("***** estado onOptionsItemSelected SALIDA %d", estado));
+            return super.onOptionsItemSelected(item);
 
-    }
-*/
+        }
+    */
     private void updateConnectionState(final int resourceId) {
         runOnUiThread(new Runnable() {
             @Override
-            @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
             public void run() {
-                //mConnectionState.setText(resourceId);
+                if (mConnectionState != null) {
+                    mConnectionState.setText(resourceId);
+                }
 
-                if (mConnected) {
-                    mBluetoothLeService.connect(mDeviceAddress); // reconexion app presente
-                    Log.d(TAG, "estoy esperando conexion");
-                    if (ESTADO > 600 && ESTADO < 2000){
-                        //mbuttonP.setBackgroundColor(Color.parseColor("#ffc000"));
-                        mbuttonP.setBackgroundResource(R.drawable.button_parking);
-                        mbuttonMenos.setBackgroundResource(R.drawable.button_less);
-                        mbuttonPlus.setBackgroundResource(R.drawable.button_more);
-                    }else if (ESTADO >= 2000) {
-                        mbuttonB.setBackgroundResource(R.drawable.button_block); // los estates candando rojo
-                        mbuttonMenos.setBackgroundResource(R.drawable.button_less);
-                        mbuttonPlus.setBackgroundResource(R.drawable.button_more);
-                    }else  {
-                       //mbuttonE.callOnClick();
-                    }
-                    //mbuttonP.setBackgroundColor(Color.parseColor("#ffc000"));
+                if (mConnected || dt != null) {
+                    botonesEnable();
+                    restaurarUIDesdeEstado();
+                } else {
+                    coloresNeutros();
+                    botonesNoEnable();
                 }
             }
         });
-        // envia el seteo anterior despues de 1 segundo
-
-        delayyy();
-        if (ESTADO > 600 && ESTADO < 2000){
-            //mbuttonP.setBackgroundColor(Color.parseColor("#ffc000"));
-            mbuttonP.setBackgroundResource(R.drawable.button_parking);
-            mbuttonMenos.setBackgroundResource(R.drawable.button_less);
-            mbuttonPlus.setBackgroundResource(R.drawable.button_more);
-            }else if (ESTADO >= 2000) {
-                mbuttonB.setBackgroundResource(R.drawable.button_block);
-            mbuttonMenos.setBackgroundResource(R.drawable.button_less);
-            mbuttonPlus.setBackgroundResource(R.drawable.button_more);
-            }else  {
-                //mbuttonE.callOnClick();
-                    }
-        //mbuttonP.setBackgroundColor(Color.parseColor("#ffc000"));
-        /*
-        // envia el seteo anterior despues de 1 segundo
-        if (EPARK == 0) {
-            delayyy();
-            mbuttonE.callOnClick();
-        } */
     }
 
     private void displayData(String data) {
@@ -729,7 +826,7 @@ public class DeviceControlActivity extends Activity {
         }
         dataValue= 0x00;
         dataValueCRC= 0xe9;
-        if (mConnected) {
+        if (puedeUsarControles()) {
             estadoNormal();
             coloresNeutros();
             STEP = 0;
@@ -778,7 +875,7 @@ public class DeviceControlActivity extends Activity {
         }
         dataValue= 0x50;
         dataValueCRC= 0x39;
-        if (mConnected ) {
+        if (puedeUsarControles() ) {
             ESTADO = 5;
             estado = 5;
             STEP = 0;
@@ -824,7 +921,7 @@ public class DeviceControlActivity extends Activity {
         }
         dataValue= 0x10;
         dataValueCRC= 0xf9;
-        if (mConnected ) {
+        if (puedeUsarControles() ) {
             ESTADO = 1;
             estado = 1;
             STEP = 0;
@@ -872,7 +969,7 @@ public class DeviceControlActivity extends Activity {
         }
         dataValue= 0x20;
         dataValueCRC= 0x09;
-        if (mConnected) {
+        if (puedeUsarControles()) {
             ESTADO = 2;
             estado = 2;
             STEP = 0;
@@ -919,7 +1016,7 @@ public class DeviceControlActivity extends Activity {
         }
         dataValue= 0x30;
         dataValueCRC= 0x19;
-        if (mConnected) {
+        if (puedeUsarControles()) {
             ESTADO = 3;
             estado = 3;
             STEP = 0;
@@ -961,7 +1058,7 @@ public class DeviceControlActivity extends Activity {
             return;
         }
 
-        if (mConnected) {
+        if (puedeUsarControles()) {
 
             if ((estado >= 1000)){
                 estado = estado - 1000;
@@ -1053,6 +1150,9 @@ public class DeviceControlActivity extends Activity {
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     private void envioDataValueAndCRC () {
+        if (!puedeEnviarBle()) {
+            return;
+        }
         mBluetoothLeService.writeCustomCharacteristic(dataValue);
         //mBluetoothLeService.writeCustomCharacteristic(0x10);
         delay ();
@@ -1062,6 +1162,9 @@ public class DeviceControlActivity extends Activity {
     }
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     private void envioDataPark() {
+        if (!puedeEnviarBle()) {
+            return;
+        }
         mBluetoothLeService.writeCustomCharacteristic(0x40);
         delay ();
         mBluetoothLeService.writeCustomCharacteristic(0x29);
@@ -1076,7 +1179,7 @@ public class DeviceControlActivity extends Activity {
             return;
         }
 
-        if ((mConnected && tipoBT == 1) || dt != null){ // solo para la version con Block y Eco y demo
+        if ((puedeUsarControles() && tipoBT == 1) || dt != null){ // solo para la version con Block y Eco y demo
 
             if ((estado >= 2000)){
                 estado = estado - 2000;
@@ -1178,6 +1281,9 @@ public class DeviceControlActivity extends Activity {
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     private void envioDataBlock() {
+        if (!puedeEnviarBle()) {
+            return;
+        }
         mBluetoothLeService.writeCustomCharacteristic(0x60);
         delay ();
         mBluetoothLeService.writeCustomCharacteristic(0x49);
@@ -1194,7 +1300,7 @@ public class DeviceControlActivity extends Activity {
             coloresNeutros();
             return;
         }
-        if (mConnected) {
+        if (puedeUsarControles()) {
 ///*
             readACCBOX ();
 
@@ -1264,7 +1370,7 @@ public class DeviceControlActivity extends Activity {
                     //mbuttonP.setBackgroundColor(Color.parseColor("#ffc000"));
                         mbuttonP.setBackgroundResource(R.drawable.parkingp);
                         //mbuttonB.setBackgroundResource(R.drawable.candadorojo);*/
-                        break;
+                    break;
 
 
             }
@@ -1380,7 +1486,7 @@ public class DeviceControlActivity extends Activity {
                 mbuttonPlus.setEnabled(false);
                 //mbuttonPlus.setBackgroundResource(R.drawable.button_less);
                 mbuttonPlus.setBackgroundResource(R.drawable.block_button_more);
-               //mbuttonPlus.setText("");
+                //mbuttonPlus.setText("");
                 onClickType(v);
                 setNumStarsR(4);
                 setNumStarsV(0);
@@ -1916,6 +2022,9 @@ public class DeviceControlActivity extends Activity {
     }
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     public void headtx () {
+        if (!puedeEnviarBle()) {
+            return;
+        }
         mBluetoothLeService.writeCustomCharacteristic(0xc0);
         delay ();
         mBluetoothLeService.writeCustomCharacteristic(0x29);
@@ -1948,7 +2057,7 @@ public class DeviceControlActivity extends Activity {
 
     @RequiresPermission(value = "android.permission.BLUETOOTH_CONNECT")
     public void onClickRead(View v){
-        if(mBluetoothLeService != null) {
+        if (puedeEnviarBle()) {
             mBluetoothLeService.readCustomCharacteristic();
         }
     }
@@ -1969,21 +2078,44 @@ public class DeviceControlActivity extends Activity {
     }
 
     public void saveACCBOX (){
-        if (dt == null){
-            String verESTADO=String.valueOf(ESTADO);
-            tv.setText(verESTADO);
-            guardaACCBOX(getApplicationContext(),tv.getText().toString());
+        if (dt != null) {
+            return;
         }
 
+        String verESTADO = String.valueOf(ESTADO);
+        if (tv != null) {
+            tv.setText(verESTADO);
+        }
+        guardaACCBOX(getApplicationContext(), verESTADO);
     }
 
     public void readACCBOX (){
-        if (dt == null){
-            tv.setText(obtieneACCBOX(getApplicationContext()));
-            String ESTADO = tv.getText().toString();
-            String verESTADO=String.valueOf(ESTADO);
-            tv.setText(verESTADO);
-            estado = Integer.parseInt(ESTADO);      // paso ESTADO dsp leer en memoria
+        if (dt != null) {
+            estado = 0;
+            ESTADO = 0;
+            return;
+        }
+
+        String savedValue = obtieneACCBOX(getApplicationContext());
+
+        if (savedValue == null || savedValue.trim().isEmpty()) {
+            savedValue = "0";
+        }
+
+        try {
+            estado = Integer.parseInt(savedValue);
+            ESTADO = estado;
+            if (tv != null) {
+                tv.setText(String.valueOf(estado));
+            }
+        } catch (NumberFormatException e) {
+            estado = 0;
+            ESTADO = 0;
+            if (tv != null) {
+                tv.setText("0");
+            }
+            guardaACCBOX(getApplicationContext(), "0");
+            Log.w(TAG, "Valor guardado inválido. Se resetea a 0.", e);
         }
     }
 
@@ -2040,18 +2172,23 @@ public class DeviceControlActivity extends Activity {
         mbuttonS.setEnabled(true);
         mbuttonR.setEnabled(true);
         mbuttonP.setEnabled(true);
-        if (dt == null){
-            if (tipoBT == 1) {
-                mbuttonB.setEnabled(true);
-                mbuttonEco.setEnabled(true);
-            } else {
-                mbuttonB.setEnabled(false);
-                mbuttonEco.setEnabled(false);
-                mbuttonEco.setText(" ");
-            }
-        }else {
+
+        mbuttonMenos.setEnabled(true);
+        mbuttonPlus.setEnabled(true);
+
+        if (dt != null) {
             mbuttonB.setEnabled(true);
             mbuttonEco.setEnabled(true);
+            return;
+        }
+
+        if (tipoBT == 1) {
+            mbuttonB.setEnabled(true);
+            mbuttonEco.setEnabled(true);
+        } else {
+            mbuttonB.setEnabled(false);
+            mbuttonEco.setEnabled(false);
+            mbuttonEco.setText(" ");
         }
     }
 
@@ -2063,14 +2200,11 @@ public class DeviceControlActivity extends Activity {
         mbuttonR.setEnabled(false);
         mbuttonP.setEnabled(false);
         mbuttonB.setEnabled(false);
+        mbuttonMenos.setEnabled(false);
+        mbuttonPlus.setEnabled(false);
+
         setNumStarsR(0);
         setNumStarsV(0);
-        mbuttonMenos.setEnabled(false);
-        //mbuttonMenos.setText("");
-        mbuttonPlus.setEnabled(false);
-        //mbuttonPlus.setText("");
-
-
     }
 
     // MARK: - seteo stepper power on
@@ -2084,7 +2218,7 @@ public class DeviceControlActivity extends Activity {
                 mbuttonMenos.setEnabled(false);
                 mbuttonMenos.setText("");
                 mbuttonPlus.setEnabled(true);
-              //  mbuttonPlus.setText("+");
+                //  mbuttonPlus.setText("+");
                 setNumStarsV(4);
                 setNumStarsR(0);
                 break;
@@ -2143,97 +2277,85 @@ public class DeviceControlActivity extends Activity {
 
     }
     private void msgConectar() {
-        /*
-        Toast toast=Toast.makeText(this,"BLEFastD not connected",Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER|Gravity.TOP,0,75);
-        View view=toast.getView();
-        TextView noconectado=(TextView)view.findViewById(android.R.id.message);
-        noconectado.setTextColor(Color.RED);
-        view.setBackgroundResource(R.color.cardview_shadow_start_color);
-        toast.show();
-         */
-
-
-
+        Toast.makeText(this, "ACCBox no conectado. Usá BLE o modo demo.", Toast.LENGTH_SHORT).show();
     }
 
     private void setNumStarsR (int numStars) {
-    if (mConnected){
+        if (puedeUsarControles()){
 
-        switch (numStars) {
-            case 4:
-                IP5.setVisibility(View.VISIBLE);
-                IP4.setVisibility(View.VISIBLE);
-                IP3.setVisibility(View.VISIBLE);
-                IP2.setVisibility(View.VISIBLE);
-                IP1.setVisibility(View.VISIBLE);
-                break;
-            case 2:
-                IP5.setVisibility(View.INVISIBLE);
-                IP4.setVisibility(View.INVISIBLE);
-                IP3.setVisibility(View.VISIBLE);
-                IP2.setVisibility(View.VISIBLE);
-                IP1.setVisibility(View.VISIBLE);
-                break;
-            case 0:
-                IP5.setVisibility(View.INVISIBLE);
-                IP4.setVisibility(View.INVISIBLE);
-                IP3.setVisibility(View.INVISIBLE);
-                IP2.setVisibility(View.INVISIBLE);
-                IP1.setVisibility(View.INVISIBLE);
-                break;
-            default:
-                break;
+            switch (numStars) {
+                case 4:
+                    IP5.setVisibility(View.VISIBLE);
+                    IP4.setVisibility(View.VISIBLE);
+                    IP3.setVisibility(View.VISIBLE);
+                    IP2.setVisibility(View.VISIBLE);
+                    IP1.setVisibility(View.VISIBLE);
+                    break;
+                case 2:
+                    IP5.setVisibility(View.INVISIBLE);
+                    IP4.setVisibility(View.INVISIBLE);
+                    IP3.setVisibility(View.VISIBLE);
+                    IP2.setVisibility(View.VISIBLE);
+                    IP1.setVisibility(View.VISIBLE);
+                    break;
+                case 0:
+                    IP5.setVisibility(View.INVISIBLE);
+                    IP4.setVisibility(View.INVISIBLE);
+                    IP3.setVisibility(View.INVISIBLE);
+                    IP2.setVisibility(View.INVISIBLE);
+                    IP1.setVisibility(View.INVISIBLE);
+                    break;
+                default:
+                    break;
+            }
+        }else {
+            IP5.setVisibility(View.INVISIBLE);
+            IP4.setVisibility(View.INVISIBLE);
+            IP3.setVisibility(View.INVISIBLE);
+            IP2.setVisibility(View.INVISIBLE);
+            IP1.setVisibility(View.INVISIBLE);
+            mbuttonPlus.setEnabled(false);
+            mbuttonPlus.setText("");
         }
-    }else {
-        IP5.setVisibility(View.INVISIBLE);
-        IP4.setVisibility(View.INVISIBLE);
-        IP3.setVisibility(View.INVISIBLE);
-        IP2.setVisibility(View.INVISIBLE);
-        IP1.setVisibility(View.INVISIBLE);
-        mbuttonPlus.setEnabled(false);
-        mbuttonPlus.setText("");
-    }
 
     }
     private void setNumStarsV (int numStars) {
-    if (mConnected){
+        if (puedeUsarControles()){
 
-        switch (numStars) {
-            case 4:
-                IM5.setVisibility(View.VISIBLE);
-                IM4.setVisibility(View.VISIBLE);
-                IM3.setVisibility(View.VISIBLE);
-                IM2.setVisibility(View.VISIBLE);
-                IM1.setVisibility(View.VISIBLE);
-                break;
-            case 2:
-                IM5.setVisibility(View.INVISIBLE);
-                IM4.setVisibility(View.INVISIBLE);
-                IM3.setVisibility(View.VISIBLE);
-                IM2.setVisibility(View.VISIBLE);
-                IM1.setVisibility(View.VISIBLE);
-                break;
-            case 0:
-                IM5.setVisibility(View.INVISIBLE);
-                IM4.setVisibility(View.INVISIBLE);
-                IM3.setVisibility(View.INVISIBLE);
-                IM2.setVisibility(View.INVISIBLE);
-                IM1.setVisibility(View.INVISIBLE);
-                break;
-            default:
-                break;
+            switch (numStars) {
+                case 4:
+                    IM5.setVisibility(View.VISIBLE);
+                    IM4.setVisibility(View.VISIBLE);
+                    IM3.setVisibility(View.VISIBLE);
+                    IM2.setVisibility(View.VISIBLE);
+                    IM1.setVisibility(View.VISIBLE);
+                    break;
+                case 2:
+                    IM5.setVisibility(View.INVISIBLE);
+                    IM4.setVisibility(View.INVISIBLE);
+                    IM3.setVisibility(View.VISIBLE);
+                    IM2.setVisibility(View.VISIBLE);
+                    IM1.setVisibility(View.VISIBLE);
+                    break;
+                case 0:
+                    IM5.setVisibility(View.INVISIBLE);
+                    IM4.setVisibility(View.INVISIBLE);
+                    IM3.setVisibility(View.INVISIBLE);
+                    IM2.setVisibility(View.INVISIBLE);
+                    IM1.setVisibility(View.INVISIBLE);
+                    break;
+                default:
+                    break;
+            }
+        }else {
+            IM5.setVisibility(View.INVISIBLE);
+            IM4.setVisibility(View.INVISIBLE);
+            IM3.setVisibility(View.INVISIBLE);
+            IM2.setVisibility(View.INVISIBLE);
+            IM1.setVisibility(View.INVISIBLE);
+            mbuttonMenos.setEnabled(false);
+            mbuttonMenos.setText("");
         }
-    }else {
-        IM5.setVisibility(View.INVISIBLE);
-        IM4.setVisibility(View.INVISIBLE);
-        IM3.setVisibility(View.INVISIBLE);
-        IM2.setVisibility(View.INVISIBLE);
-        IM1.setVisibility(View.INVISIBLE);
-        mbuttonMenos.setEnabled(false);
-        mbuttonMenos.setText("");
-    }
 
     }
 }
-

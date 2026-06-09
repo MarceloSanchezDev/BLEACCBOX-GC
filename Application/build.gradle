@@ -18,25 +18,10 @@ repositories {
 }
 
 dependencies {
-
     implementation "androidx.appcompat:appcompat:1.4.2"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.legacy:legacy-support-v4:1.0.0"
-        //noinspection GradleCompatible
-        //implementation "com.android.support:support-v4:28.0.0"
-        //noinspection GradleCompatible
-        //implementation "com.android.support:support-v13:28.0.0"
-        //noinspection GradleCompatible
-        //implementation "com.android.support:cardview-v7:28.0.0"
-        //noinspection GradleCompatible
-        //implementation "com.android.support:appcompat-v7:28.0.0"
-
-    //implementation 'com.google.android.play:core:1.10.3'
-
-   // implementation 'org.jetbrains:annotations-java5:24.1.0'
-    //implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
-
-
+    implementation "androidx.constraintlayout:constraintlayout:2.2.0"
 }
 
 // The sample build uses multiple directories to
@@ -53,7 +38,7 @@ android {
     compileSdk 35
 
     defaultConfig {
-        minSdkVersion 18
+        minSdkVersion 21
         //noinspection EditedTargetSdkVersion
         targetSdkVersion 35
         applicationId 'app.fastd.bleandroid.accbox12'

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_padding_horizontal">24dp</dimen>
+    <dimen name="screen_padding_top">48dp</dimen>
+    <dimen name="screen_padding_bottom">26dp</dimen>
+
+    <dimen name="header_button_height">56dp</dimen>
+    <dimen name="header_logo_size">64dp</dimen>
+    <dimen name="header_gap">10dp</dimen>
+
+    <dimen name="brand_image_top_margin">22dp</dimen>
+    <dimen name="brand_image_bottom_margin">18dp</dimen>
+
+    <dimen name="mode_buttons_top_margin">20dp</dimen>
+    <dimen name="mode_button_height">72dp</dimen>
+    <dimen name="mode_button_gap">12dp</dimen>
+
+    <dimen name="stars_container_top_margin">32dp</dimen>
+    <dimen name="stars_container_margin_horizontal">8dp</dimen>
+    <dimen name="stars_container_min_height">24dp</dimen>
+
+    <dimen name="star_h">22dp</dimen>
+    <dimen name="star_w_1">14dp</dimen>
+    <dimen name="star_w_2">16dp</dimen>
+    <dimen name="star_w_3">18dp</dimen>
+    <dimen name="star_w_4">20dp</dimen>
+    <dimen name="star_w_5">22dp</dimen>
+
+    <dimen name="stepper_buttons_top_margin">14dp</dimen>
+    <dimen name="stepper_button_height">72dp</dimen>
+
+    <dimen name="footer_top_margin">34dp</dimen>
+    <dimen name="footer_icon_button_size">64dp</dimen>
+    <dimen name="footer_side_margin">42dp</dimen>
+
+    <dimen name="hidden_size">1dp</dimen>
+
+    <dimen name="screen_gap">16dp</dimen>
+    <dimen name="scan_logo_size">230dp</dimen>
+    <dimen name="scan_text_logo_height">110dp</dimen>
+
+
+    <dimen name="debug_active_dimen">850dp</dimen>
+</resources>
