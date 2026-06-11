@@ -77,7 +77,7 @@
 
     <application
         android:label="@string/app_name"
-        android:icon="@mipmap/icon_app2_foreground"
+        android:icon="@mipmap/ic_launcher"
         android:theme="@android:style/Theme.Holo.Light.DarkActionBar">
 
         <activity

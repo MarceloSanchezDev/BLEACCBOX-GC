@@ -2226,10 +2226,10 @@ public class DeviceControlActivity extends Activity {
             case 121: case 237: case 353: case 585:
                 STEP = -1;
                 mbuttonMenos.setEnabled(true);
-                mbuttonMenos.setBackgroundResource(R.drawable.button_less);
+                mbuttonMenos.setBackgroundResource(R.drawable.block_button_less);
                 //mbuttonMenos.setText("-");
                 mbuttonPlus.setEnabled(true);
-                mbuttonPlus.setBackgroundResource(R.drawable.button_more);
+                mbuttonPlus.setBackgroundResource(R.drawable.block_button_more);
                 //mbuttonPlus.setText("+");
                 setNumStarsV(2);
                 setNumStarsR(0);
@@ -2239,10 +2239,10 @@ public class DeviceControlActivity extends Activity {
                 mbuttonMenos.setEnabled(true);
 
                 //mbuttonMenos.setText("-");
-                mbuttonMenos.setBackgroundResource(R.drawable.button_less);
+                mbuttonMenos.setBackgroundResource(R.drawable.block_button_less);
                 mbuttonPlus.setEnabled(true);
                 //mbuttonPlus.setText("+");
-                mbuttonPlus.setBackgroundResource(R.drawable.button_more);
+                mbuttonPlus.setBackgroundResource(R.drawable.block_button_more);
 
                 setNumStarsV(0);
                 setNumStarsR(0);
@@ -2250,10 +2250,10 @@ public class DeviceControlActivity extends Activity {
             case 120: case 236: case 352: case 584:
                 STEP = 1;
                 mbuttonMenos.setEnabled(true);
-                mbuttonMenos.setBackgroundResource(R.drawable.button_less);
+                mbuttonMenos.setBackgroundResource(R.drawable.block_button_less);
                 //mbuttonMenos.setText("-");
                 mbuttonPlus.setEnabled(true);
-                mbuttonPlus.setBackgroundResource(R.drawable.button_more);
+                mbuttonPlus.setBackgroundResource(R.drawable.block_button_more);
 
                 //mbuttonPlus.setText("+");
                 setNumStarsR(2);
@@ -2262,10 +2262,10 @@ public class DeviceControlActivity extends Activity {
             case 124: case 240: case 356: case 588:
                 STEP = 2;
                 mbuttonMenos.setEnabled(true);
-                mbuttonMenos.setBackgroundResource(R.drawable.button_less);
+                mbuttonMenos.setBackgroundResource(R.drawable.block_button_less);
                 //mbuttonMenos.setText("-");
                 mbuttonPlus.setEnabled(false);
-                mbuttonPlus.setBackgroundResource(R.drawable.button_more);
+                mbuttonPlus.setBackgroundResource(R.drawable.block_button_more);
                 //mbuttonPlus.setText("");
                 setNumStarsR(4);
                 setNumStarsV(0);
