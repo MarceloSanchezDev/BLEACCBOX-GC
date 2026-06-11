@@ -185,7 +185,7 @@
         <LinearLayout
             android:id="@+id/starsContainer"
             android:layout_width="0dp"
-            android:layout_height="16dp"
+            android:layout_height="24dp"
             android:layout_marginStart="@dimen/stars_container_margin_horizontal"
             android:layout_marginEnd="@dimen/stars_container_margin_horizontal"
             android:layout_marginTop="@dimen/stars_container_top_margin"
@@ -204,48 +204,48 @@
 
             <ImageView
                 android:id="@+id/imageViewM5"
-                android:layout_width="@dimen/star_w_5"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_5"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/star_green_5"
                 android:contentDescription="Minus level 5" />
 
             <ImageView
                 android:id="@+id/imageViewM4"
-                android:layout_width="@dimen/star_w_4"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_4"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/star_green_4"
                 android:contentDescription="Minus level 4" />
 
             <ImageView
                 android:id="@+id/imageViewM3"
-                android:layout_width="@dimen/star_w_3"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_3"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/star_green_3"
                 android:contentDescription="Minus level 3" />
 
             <ImageView
                 android:id="@+id/imageViewM2"
-                android:layout_width="@dimen/star_w_2"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_2"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/star_green_2"
                 android:contentDescription="Minus level 2" />
 
             <ImageView
                 android:id="@+id/imageViewM1"
-                android:layout_width="@dimen/star_w_1"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_1"
                 android:layout_marginEnd="4dp"
                 android:background="@drawable/star_green_1"
                 android:contentDescription="Minus level 1" />
 
             <ImageView
                 android:id="@+id/imageViewP1"
-                android:layout_width="@dimen/star_w_1"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_1"
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/star_red_1"
@@ -253,32 +253,32 @@
 
             <ImageView
                 android:id="@+id/imageViewP2"
-                android:layout_width="@dimen/star_w_2"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_2"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/star_red_2"
                 android:contentDescription="Plus level 2" />
 
             <ImageView
                 android:id="@+id/imageViewP3"
-                android:layout_width="@dimen/star_w_3"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_3"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/star_red_3"
                 android:contentDescription="Plus level 3" />
 
             <ImageView
                 android:id="@+id/imageViewP4"
-                android:layout_width="@dimen/star_w_4"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_4"
                 android:layout_marginEnd="2dp"
                 android:background="@drawable/star_red_4"
                 android:contentDescription="Plus level 4" />
 
             <ImageView
                 android:id="@+id/imageViewP5"
-                android:layout_width="@dimen/star_w_5"
-                android:layout_height="@dimen/star_h"
+                android:layout_width="@dimen/star_h"
+                android:layout_height="@dimen/star_w_5"
                 android:background="@drawable/star_red_5"
                 android:contentDescription="Plus level 5" />
 
